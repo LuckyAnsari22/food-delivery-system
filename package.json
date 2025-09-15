@@ -1,0 +1,20 @@
+{
+  "name": "food-delivery-system",
+  "version": "1.0.0",
+  "description": "A comprehensive food delivery platform with real-time tracking and payment integration",
+  "main": "backend/server.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm run dev",
+    "client": "cd frontend && npm start",
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npm start"
+  },
+  "keywords": ["food-delivery", "react", "nodejs", "mongodb", "razorpay"],
+  "author": "Food Delivery Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
