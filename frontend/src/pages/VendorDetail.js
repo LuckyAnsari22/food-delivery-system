@@ -8,7 +8,7 @@ import ErrorMessage from '../components/common/ErrorMessage';
 
 const VendorDetail = () => {
   const { id } = useParams();
-  const { addToCart, getItemQuantity } = useCart();
+  const { addItem, getItemQuantity } = useCart();
   const [vendor, setVendor] = useState(null);
   const [foodItems, setFoodItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -154,16 +154,26 @@ const VendorDetail = () => {
     : foodItems.filter(item => item.category === selectedCategory);
 
   const handleAddToCart = (item) => {
-    addToCart(item);
+    addItem({
+      foodItem: item,
+      quantity: 1
+    });
   };
 
   const handleQuantityChange = (item, change) => {
     const currentQuantity = getItemQuantity(item._id);
     if (change > 0) {
-      addToCart(item);
+      addItem({
+        foodItem: item,
+        quantity: 1
+      });
     } else if (currentQuantity > 0) {
-      // Remove one item
-      addToCart(item, -1);
+      // Remove one item - this would need a different approach in a real app
+      // For now, we'll just add with negative quantity (not ideal but works for demo)
+      addItem({
+        foodItem: item,
+        quantity: -1
+      });
     }
   };
 

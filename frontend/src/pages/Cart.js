@@ -5,14 +5,14 @@ import { FiPlus, FiMinus, FiTrash2, FiShoppingBag } from 'react-icons/fi';
 import { useCart } from '../context/CartContext';
 
 const Cart = () => {
-  const { cartItems, updateQuantity, removeFromCart, clearCart, getTotalPrice, getTotalItems } = useCart();
+  const { items: cartItems, updateQuantity, removeItem, clearCart, totalPrice, totalItems } = useCart();
 
   const handleQuantityChange = (itemId, change) => {
-    const item = cartItems.find(item => item._id === itemId);
+    const item = cartItems.find(item => item.id === itemId);
     if (item) {
       const newQuantity = item.quantity + change;
       if (newQuantity <= 0) {
-        removeFromCart(itemId);
+        removeItem(itemId);
       } else {
         updateQuantity(itemId, newQuantity);
       }
@@ -20,7 +20,7 @@ const Cart = () => {
   };
 
   const handleRemoveItem = (itemId) => {
-    removeFromCart(itemId);
+    removeItem(itemId);
   };
 
   if (cartItems.length === 0) {
@@ -65,7 +65,7 @@ const Cart = () => {
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-2xl font-bold text-gray-900">Shopping Cart</h1>
               <span className="text-sm text-gray-600">
-                {getTotalItems()} {getTotalItems() === 1 ? 'item' : 'items'}
+                {totalItems} {totalItems === 1 ? 'item' : 'items'}
               </span>
             </div>
 
@@ -74,22 +74,22 @@ const Cart = () => {
               <div className="lg:col-span-2">
                 <div className="bg-white rounded-lg shadow-sm">
                   {cartItems.map((item) => (
-                    <div key={item._id} className="flex items-center space-x-4 p-6 border-b border-gray-200 last:border-b-0">
+                    <div key={item.id} className="flex items-center space-x-4 p-6 border-b border-gray-200 last:border-b-0">
                       <img
-                        src={item.images[0]?.url || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=100'}
-                        alt={item.name}
+                        src={item.foodItem.images?.[0]?.url || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=100'}
+                        alt={item.foodItem.name}
                         className="w-20 h-20 object-cover rounded-lg"
                       />
                       
                       <div className="flex-1">
-                        <h3 className="font-medium text-gray-900">{item.name}</h3>
-                        <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+                        <h3 className="font-medium text-gray-900">{item.foodItem.name}</h3>
+                        <p className="text-sm text-gray-600 mt-1">{item.foodItem.description}</p>
                         <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
                           <span>₹{item.price}</span>
-                          {item.isVegetarian && (
+                          {item.foodItem.isVegetarian && (
                             <span className="text-green-600">Veg</span>
                           )}
-                          {item.isSpicy && (
+                          {item.foodItem.isSpicy && (
                             <span className="text-red-600">Spicy</span>
                           )}
                         </div>
@@ -98,14 +98,14 @@ const Cart = () => {
                       <div className="flex items-center space-x-3">
                         <div className="flex items-center space-x-2">
                           <button
-                            onClick={() => handleQuantityChange(item._id, -1)}
+                            onClick={() => handleQuantityChange(item.id, -1)}
                             className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
                           >
                             <FiMinus className="w-4 h-4" />
                           </button>
                           <span className="w-8 text-center font-medium">{item.quantity}</span>
                           <button
-                            onClick={() => handleQuantityChange(item._id, 1)}
+                            onClick={() => handleQuantityChange(item.id, 1)}
                             className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
                           >
                             <FiPlus className="w-4 h-4" />
@@ -114,12 +114,12 @@ const Cart = () => {
                         
                         <div className="text-right">
                           <div className="font-medium text-gray-900">
-                            ₹{item.price * item.quantity}
+                            ₹{item.totalPrice}
                           </div>
                         </div>
                         
                         <button
-                          onClick={() => handleRemoveItem(item._id)}
+                          onClick={() => handleRemoveItem(item.id)}
                           className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
                         >
                           <FiTrash2 className="w-4 h-4" />
@@ -148,7 +148,7 @@ const Cart = () => {
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Subtotal</span>
-                      <span className="text-gray-900">₹{getTotalPrice()}</span>
+                      <span className="text-gray-900">₹{totalPrice.toFixed(2)}</span>
                     </div>
                     
                     <div className="flex justify-between text-sm">
@@ -158,14 +158,14 @@ const Cart = () => {
                     
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Tax</span>
-                      <span className="text-gray-900">₹{(getTotalPrice() * 0.05).toFixed(2)}</span>
+                      <span className="text-gray-900">₹{(totalPrice * 0.05).toFixed(2)}</span>
                     </div>
                     
                     <div className="border-t border-gray-200 pt-3">
                       <div className="flex justify-between">
                         <span className="font-semibold text-gray-900">Total</span>
                         <span className="font-semibold text-gray-900">
-                          ₹{(getTotalPrice() + 30 + (getTotalPrice() * 0.05)).toFixed(2)}
+                          ₹{(totalPrice + 30 + (totalPrice * 0.05)).toFixed(2)}
                         </span>
                       </div>
                     </div>

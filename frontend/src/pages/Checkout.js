@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useCart } from '../context/CartContext';
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { cartItems, getTotalPrice, clearCart } = useCart();
+  const { items: cartItems, totalPrice, clearCart } = useCart();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -16,6 +16,25 @@ const Checkout = () => {
   });
   
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Redirect to cart if empty
+  useEffect(() => {
+    if (cartItems.length === 0) {
+      navigate('/cart');
+    }
+  }, [cartItems.length, navigate]);
+
+  // Show loading if cart is empty (redirecting)
+  if (cartItems.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirecting to cart...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -35,7 +54,7 @@ const Checkout = () => {
       const order = {
         id: `ORD-${Date.now()}`,
         items: cartItems,
-        total: getTotalPrice() + 30,
+        total: totalAmount,
         customer: formData,
         status: 'confirmed',
         createdAt: new Date().toISOString()
@@ -51,7 +70,9 @@ const Checkout = () => {
     }
   };
 
-  const totalAmount = getTotalPrice() + 30;
+  const deliveryFee = 30;
+  const tax = totalPrice * 0.05;
+  const totalAmount = totalPrice + deliveryFee + tax;
 
   return (
     <>
@@ -181,18 +202,18 @@ const Checkout = () => {
                   
                   <div className="space-y-3">
                     {cartItems.map((item) => (
-                      <div key={item._id} className="flex items-center space-x-3">
+                      <div key={item.id} className="flex items-center space-x-3">
                         <img
-                          src={item.images[0]?.url || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=50'}
-                          alt={item.name}
+                          src={item.foodItem.images?.[0]?.url || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=50'}
+                          alt={item.foodItem.name}
                           className="w-12 h-12 object-cover rounded-lg"
                         />
                         <div className="flex-1">
-                          <h4 className="text-sm font-medium text-gray-900">{item.name}</h4>
+                          <h4 className="text-sm font-medium text-gray-900">{item.foodItem.name}</h4>
                           <p className="text-xs text-gray-600">Qty: {item.quantity}</p>
                         </div>
                         <span className="text-sm font-medium text-gray-900">
-                          ₹{item.price * item.quantity}
+                          ₹{item.totalPrice}
                         </span>
                       </div>
                     ))}
@@ -201,18 +222,23 @@ const Checkout = () => {
                   <div className="border-t border-gray-200 pt-4 mt-4 space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Subtotal</span>
-                      <span className="text-gray-900">₹{getTotalPrice()}</span>
+                      <span className="text-gray-900">₹{totalPrice.toFixed(2)}</span>
                     </div>
                     
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Delivery Fee</span>
-                      <span className="text-gray-900">₹30</span>
+                      <span className="text-gray-900">₹{deliveryFee}</span>
+                    </div>
+                    
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Tax (5%)</span>
+                      <span className="text-gray-900">₹{tax.toFixed(2)}</span>
                     </div>
                     
                     <div className="border-t border-gray-200 pt-2">
                       <div className="flex justify-between">
                         <span className="font-semibold text-gray-900">Total</span>
-                        <span className="font-semibold text-gray-900">₹{totalAmount}</span>
+                        <span className="font-semibold text-gray-900">₹{totalAmount.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
@@ -222,7 +248,7 @@ const Checkout = () => {
                     disabled={isProcessing}
                     className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isProcessing ? 'Processing...' : `Place Order - ₹${totalAmount}`}
+                    {isProcessing ? 'Processing...' : `Place Order - ₹${totalAmount.toFixed(2)}`}
                   </button>
                 </div>
               </div>

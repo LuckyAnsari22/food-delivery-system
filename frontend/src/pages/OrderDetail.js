@@ -88,23 +88,23 @@ const OrderDetail = () => {
                   
                   <div className="space-y-4">
                     {order.items.map((item) => (
-                      <div key={item._id} className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
+                      <div key={item.id} className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
                         <img
-                          src={item.images[0]?.url || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=100'}
-                          alt={item.name}
+                          src={item.foodItem.images?.[0]?.url || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=100'}
+                          alt={item.foodItem.name}
                           className="w-16 h-16 object-cover rounded-lg"
                         />
                         
                         <div className="flex-1">
-                          <h3 className="font-medium text-gray-900">{item.name}</h3>
-                          <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+                          <h3 className="font-medium text-gray-900">{item.foodItem.name}</h3>
+                          <p className="text-sm text-gray-600 mt-1">{item.foodItem.description}</p>
                           <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
                             <span>Qty: {item.quantity}</span>
                             <span>₹{item.price} each</span>
-                            {item.isVegetarian && (
+                            {item.foodItem.isVegetarian && (
                               <span className="text-green-600">Veg</span>
                             )}
-                            {item.isSpicy && (
+                            {item.foodItem.isSpicy && (
                               <span className="text-red-600">Spicy</span>
                             )}
                           </div>
@@ -112,7 +112,7 @@ const OrderDetail = () => {
                         
                         <div className="text-right">
                           <div className="font-medium text-gray-900">
-                            ₹{item.price * item.quantity}
+                            ₹{item.totalPrice}
                           </div>
                         </div>
                       </div>
@@ -177,7 +177,7 @@ const OrderDetail = () => {
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Subtotal</span>
-                      <span className="text-gray-900">₹{order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)}</span>
+                      <span className="text-gray-900">₹{order.items.reduce((sum, item) => sum + item.totalPrice, 0).toFixed(2)}</span>
                     </div>
                     
                     <div className="flex justify-between text-sm">
@@ -187,7 +187,7 @@ const OrderDetail = () => {
                     
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Tax</span>
-                      <span className="text-gray-900">₹{(order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.05).toFixed(2)}</span>
+                      <span className="text-gray-900">₹{(order.items.reduce((sum, item) => sum + item.totalPrice, 0) * 0.05).toFixed(2)}</span>
                     </div>
                     
                     <div className="border-t border-gray-200 pt-3">
